@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Playful Palette */
+  --font-display: 'Fredoka', cursive;
+  --font-body: 'Nunito', sans-serif;
+
+  --background: 200 100% 98%;     /* Very Light Blue */
+  --foreground: 222 47% 11%;
+  
+  --primary: 320 80% 60%;         /* Hot Pink */
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 190 90% 50%;       /* Bright Cyan/Blue */
+  --secondary-foreground: 0 0% 100%;
+  
+  --accent: 45 100% 60%;          /* Sunshine Yellow */
+  --accent-foreground: 30 80% 20%;
+  
+  --success: 140 70% 50%;         /* Lime Green */
+  --success-foreground: 0 0% 100%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 320 80% 60%;
+  
+  --radius: 1rem;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-accent selection:text-accent-foreground;
+    font-family: var(--font-body);
+    background-image: radial-gradient(#e0f2fe 2px, transparent 2px);
+    background-size: 32px 32px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply font-bold tracking-tight text-foreground;
+  }
+}
+
+@layer components {
+  /* Custom "Comic" Button Style */
+  .btn-comic {
+    @apply relative transition-all duration-200 active:scale-95 hover:-translate-y-1 border-b-4 font-black tracking-wide uppercase;
+  }
+  
+  .card-comic {
+    @apply bg-white rounded-3xl border-4 border-slate-100 shadow-[0_8px_0_0_rgba(0,0,0,0.05)];
+  }
+}
+
+/* Fun Animations */
+@keyframes bounce-in {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.3s ease-in-out infinite;
+}
