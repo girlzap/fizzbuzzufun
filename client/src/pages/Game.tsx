@@ -4,9 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { ComicButton } from "@/components/ComicButton";
 import { GameCard } from "@/components/GameCard";
-import { useSubmitScore } from "@/hooks/use-scores";
 import { ArrowLeft, RefreshCw, Trophy } from "lucide-react";
-import { z } from "zod";
 
 type GameState = "playing" | "game_over";
 type Feedback = "none" | "correct" | "wrong";
@@ -23,11 +21,6 @@ export default function Game() {
   const [nextLearnNumber, setNextLearnNumber] = useState(1);
   const [gameState, setGameState] = useState<GameState>("playing");
   const [feedback, setFeedback] = useState<Feedback>("none");
-  const [playerName, setPlayerName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const submitScore = useSubmitScore();
-
   // Initialize game
   useEffect(() => {
     generateNumber();
@@ -170,25 +163,6 @@ export default function Game() {
     generateNumber();
   };
 
-  const handleSubmitScore = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!playerName.trim()) return;
-
-    setIsSubmitting(true);
-    try {
-      await submitScore.mutateAsync({
-        playerName: playerName,
-        score: score,
-        mode: mode
-      });
-      setLocation("/");
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   // UI Components helpers
   const FeedbackOverlay = () => (
     <AnimatePresence>
@@ -240,42 +214,16 @@ export default function Game() {
             <p className="text-xl text-slate-500">You scored {score} points</p>
           </div>
 
-          <form onSubmit={handleSubmitScore} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-bold text-slate-400 uppercase tracking-wider block">
-                Enter your name
-              </label>
-              <input
-                id="name"
-                type="text"
-                autoFocus
-                maxLength={12}
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-                placeholder="Super Player"
-                className="w-full px-6 py-4 text-center text-2xl font-black rounded-2xl border-4 border-slate-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all bg-slate-50 text-slate-800 placeholder:text-slate-300"
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <ComicButton 
-                type="button" 
-                onClick={handlePlayAgain}
-                variant="neutral"
-                block
-              >
-                <RefreshCw className="w-5 h-5 mr-2" />
-                Replay
-              </ComicButton>
-              <ComicButton 
-                type="submit" 
-                disabled={!playerName.trim() || isSubmitting}
-                block
-              >
-                {isSubmitting ? "Saving..." : "Save Score"}
-              </ComicButton>
-            </div>
-          </form>
+          <div className="grid grid-cols-2 gap-4">
+            <ComicButton onClick={handlePlayAgain} variant="neutral" block>
+              <RefreshCw className="w-5 h-5 mr-2" />
+              Play Again
+            </ComicButton>
+            <ComicButton onClick={() => setLocation("/")} block>
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Home
+            </ComicButton>
+          </div>
         </GameCard>
       </div>
     );

@@ -1,8 +1,7 @@
 import { Link } from "wouter";
 import { ComicButton } from "@/components/ComicButton";
-import { Leaderboard } from "@/components/Leaderboard";
 import { motion } from "framer-motion";
-import { Play, Sparkles, Zap, GraduationCap, Trophy } from "lucide-react";
+import { Play, Zap, GraduationCap, Trophy } from "lucide-react";
 import { useState } from "react";
 
 export default function Home() {
@@ -28,104 +27,95 @@ export default function Home() {
         </h1>
       </motion.div>
 
-      <div className="w-full max-w-2xl grid md:grid-cols-2 gap-8 items-start">
-        <div className="space-y-6">
-          <div className="bg-white p-6 rounded-3xl border-4 border-slate-100 shadow-sm space-y-4">
-            <h2 className="text-2xl font-black text-slate-800 flex items-center gap-2">
-              <Play className="w-6 h-6 text-primary" />
-              Pick a Mode
-            </h2>
+      <div className="w-full max-w-md space-y-6">
+        <div className="bg-white p-6 rounded-3xl border-4 border-slate-100 shadow-sm space-y-4">
+          <h2 className="text-2xl font-black text-slate-800 flex items-center gap-2">
+            <Play className="w-6 h-6 text-primary" />
+            Pick a Mode
+          </h2>
 
-            <div className="space-y-3">
-              <button
-                onClick={() => setSelectedMode("hard")}
-                className={`w-full p-4 rounded-2xl border-4 transition-all text-left flex items-center gap-4 ${
-                  selectedMode === "hard"
-                    ? "border-primary bg-primary/5 ring-4 ring-primary/10"
-                    : "border-slate-100 hover:border-slate-200 bg-white"
-                }`}
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                  <Trophy className="w-6 h-6" />
-                </div>
-                <div>
-                  <div className="font-black text-lg text-slate-800">
-                    Hard Mode
-                  </div>
-                  <div className="text-sm text-slate-500">Fast and tricky!</div>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setSelectedMode("easy")}
-                className={`w-full p-4 rounded-2xl border-4 transition-all text-left flex items-center gap-4 ${
-                  selectedMode === "easy"
-                    ? "border-secondary bg-secondary/5 ring-4 ring-secondary/10"
-                    : "border-slate-100 hover:border-slate-200 bg-white"
-                }`}
-              >
-                <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
-                  <Zap className="w-6 h-6" />
-                </div>
-                <div>
-                  <div className="font-black text-lg text-slate-800">
-                    Easy Mode
-                  </div>
-                  <div className="text-sm text-slate-500">For beginners.</div>
-                </div>
-              </button>
-
-              <button
-                onClick={() => setSelectedMode("learn")}
-                className={`w-full p-4 rounded-2xl border-4 transition-all text-left flex items-center gap-4 ${
-                  selectedMode === "learn"
-                    ? "border-accent bg-accent/5 ring-4 ring-accent/10"
-                    : "border-slate-100 hover:border-slate-200 bg-white"
-                }`}
-              >
-                <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
-                  <GraduationCap className="w-6 h-6" />
-                </div>
-                <div>
-                  <div className="font-black text-lg stext-slate-800">
-                    Learn Mode
-                  </div>
-                  <div className="text-sm text-slate-500">
-                    No timers, just practice.
-                  </div>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <Link href={`/game?mode=${selectedMode}`}>
-            <ComicButton
-              size="xl"
-              block
-              variant={
+          <div className="space-y-3">
+            <button
+              onClick={() => setSelectedMode("hard")}
+              className={`w-full p-4 rounded-2xl border-4 transition-all text-left flex items-center gap-4 ${
                 selectedMode === "hard"
-                  ? "primary"
-                  : selectedMode === "easy"
-                    ? "secondary"
-                    : "accent"
-              }
-              className="group relative overflow-hidden"
+                  ? "border-primary bg-primary/5 ring-4 ring-primary/10"
+                  : "border-slate-100 hover:border-slate-200 bg-white"
+              }`}
             >
-              <span className="relative z-10 flex items-center justify-center gap-3">
-                <Play className="w-8 h-8 fill-current" />
-                Start{" "}
-                {selectedMode.charAt(0).toUpperCase() + selectedMode.slice(1)}
-              </span>
-            </ComicButton>
-          </Link>
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                <Trophy className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="font-black text-lg text-slate-800">
+                  Hard Mode
+                </div>
+                <div className="text-sm text-slate-500">Fast and tricky!</div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setSelectedMode("easy")}
+              className={`w-full p-4 rounded-2xl border-4 transition-all text-left flex items-center gap-4 ${
+                selectedMode === "easy"
+                  ? "border-secondary bg-secondary/5 ring-4 ring-secondary/10"
+                  : "border-slate-100 hover:border-slate-200 bg-white"
+              }`}
+            >
+              <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
+                <Zap className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="font-black text-lg text-slate-800">
+                  Easy Mode
+                </div>
+                <div className="text-sm text-slate-500">For beginners.</div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setSelectedMode("learn")}
+              className={`w-full p-4 rounded-2xl border-4 transition-all text-left flex items-center gap-4 ${
+                selectedMode === "learn"
+                  ? "border-accent bg-accent/5 ring-4 ring-accent/10"
+                  : "border-slate-100 hover:border-slate-200 bg-white"
+              }`}
+            >
+              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+                <GraduationCap className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="font-black text-lg text-slate-800">
+                  Learn Mode
+                </div>
+                <div className="text-sm text-slate-500">
+                  No timers, just practice.
+                </div>
+              </div>
+            </button>
+          </div>
         </div>
 
-        <div className="relative">
-          <div className="absolute -top-6 -left-6 text-yellow-400 animate-bounce">
-            <Sparkles className="w-8 h-8" />
-          </div>
-          <Leaderboard mode={selectedMode} />
-        </div>
+        <Link href={`/game?mode=${selectedMode}`}>
+          <ComicButton
+            size="xl"
+            block
+            variant={
+              selectedMode === "hard"
+                ? "primary"
+                : selectedMode === "easy"
+                  ? "secondary"
+                  : "accent"
+            }
+            className="group relative overflow-hidden"
+          >
+            <span className="relative z-10 flex items-center justify-center gap-3">
+              <Play className="w-8 h-8 fill-current" />
+              Start{" "}
+              {selectedMode.charAt(0).toUpperCase() + selectedMode.slice(1)}
+            </span>
+          </ComicButton>
+        </Link>
       </div>
     </div>
   );
