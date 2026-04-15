@@ -13,8 +13,14 @@ type Feedback = "none" | "correct" | "wrong";
 
 export default function Game() {
   const [location, setLocation] = useLocation();
+  const searchParams = new URLSearchParams(window.location.search);
+  const mode = (searchParams.get("mode") as "hard" | "easy" | "learn") || "hard";
+  
   const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(mode === "learn" ? 1 : 3);
+  const [timeLeft, setTimeLeft] = useState(5);
   const [currentNumber, setCurrentNumber] = useState(0);
+  const [nextLearnNumber, setNextLearnNumber] = useState(1);
   const [gameState, setGameState] = useState<GameState>("playing");
   const [feedback, setFeedback] = useState<Feedback>("none");
   const [playerName, setPlayerName] = useState("");
@@ -27,11 +33,71 @@ export default function Game() {
     generateNumber();
   }, []);
 
+  // Timer for Hard Mode
+  useEffect(() => {
+    if (gameState !== "playing" || mode !== "hard" || feedback !== "none") return;
+
+    if (timeLeft <= 0) {
+      handleWrong(true); // true means it was a timeout
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, gameState, mode, feedback]);
+
   const generateNumber = () => {
-    // Generate random number 1-100
-    // To make it fun, ensure we get a decent distribution of Fizz/Buzz/FizzBuzz
-    // Weighted slightly towards having matches so it's not boring
-    let num = Math.floor(Math.random() * 100) + 1;
+    setTimeLeft(5);
+    let num: number;
+    
+    if (mode === "easy") {
+      // Easy mode weighting: 53% None, ~15.67% each for Fizz, Buzz, FizzBuzz
+      const rand = Math.random();
+      if (rand < 0.53) {
+        // None: numbers not divisible by 3 or 5
+        const nonMatches = [];
+        for (let i = 1; i <= 100; i++) {
+          if (i % 3 !== 0 && i % 5 !== 0) nonMatches.push(i);
+        }
+        num = nonMatches[Math.floor(Math.random() * nonMatches.length)];
+      } else {
+        const remainingProb = (1 - 0.53) / 3;
+        const subRand = Math.random();
+        
+        if (subRand < 1/3) {
+          // Fizz: divisible by 3 but not 15
+          const fizzes = [];
+          for (let i = 1; i <= 100; i++) {
+            if (i % 3 === 0 && i % 15 !== 0) fizzes.push(i);
+          }
+          num = fizzes[Math.floor(Math.random() * fizzes.length)];
+        } else if (subRand < 2/3) {
+          // Buzz: divisible by 5 but not 15
+          const buzzes = [];
+          for (let i = 1; i <= 100; i++) {
+            if (i % 5 === 0 && i % 15 !== 0) buzzes.push(i);
+          }
+          num = buzzes[Math.floor(Math.random() * buzzes.length)];
+        } else {
+          // FizzBuzz: divisible by 15
+          const fizzbuzzes = [];
+          for (let i = 1; i <= 100; i++) {
+            if (i % 15 === 0) fizzbuzzes.push(i);
+          }
+          num = fizzbuzzes[Math.floor(Math.random() * fizzbuzzes.length)];
+        }
+      }
+    } else if (mode === "learn") {
+      // Learn mode: Sequential order
+      num = nextLearnNumber;
+      setNextLearnNumber(prev => prev + 1);
+    } else {
+      // Hard mode: Standard 1-100 random
+      num = Math.floor(Math.random() * 100) + 1;
+    }
     setCurrentNumber(num);
   };
 
@@ -75,13 +141,30 @@ export default function Game() {
     }, 600); // Wait for animation
   };
 
-  const handleWrong = () => {
+  const handleWrong = (isTimeout = false) => {
     setFeedback("wrong");
-    setGameState("game_over");
+    
+    if (mode !== "learn") {
+      const newLives = lives - 1;
+      setLives(newLives);
+      
+      if (newLives <= 0) {
+        setGameState("game_over");
+      } else {
+        setTimeout(() => {
+          setFeedback("none");
+          generateNumber();
+        }, 1000);
+      }
+    } else {
+      setTimeout(() => setFeedback("none"), 1000);
+    }
   };
 
   const handlePlayAgain = () => {
     setScore(0);
+    setLives(mode === "learn" ? 1 : 3);
+    setNextLearnNumber(1);
     setGameState("playing");
     setFeedback("none");
     generateNumber();
@@ -95,7 +178,8 @@ export default function Game() {
     try {
       await submitScore.mutateAsync({
         playerName: playerName,
-        score: score
+        score: score,
+        mode: mode
       });
       setLocation("/");
     } catch (error) {
@@ -124,11 +208,23 @@ export default function Game() {
         <motion.div 
           initial={{ scale: 0 }}
           animate={{ scale: 1.2 }}
+          exit={{ scale: 0, opacity: 0 }}
           className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none"
         >
-          <span className="text-8xl font-black text-red-500 drop-shadow-lg">
-            Oops!
-          </span>
+          <div className="flex flex-col items-center gap-4">
+            <span className="text-8xl font-black text-red-500 drop-shadow-lg">
+              {timeLeft <= 0 && mode === "hard" ? "Time's Up!" : "Oops!"}
+            </span>
+            {mode === "learn" ? (
+              <span className="text-2xl font-bold text-slate-600 bg-white/80 px-6 py-2 rounded-full border-2 border-slate-200 shadow-sm">
+                Try again! You can do it!
+              </span>
+            ) : lives > 0 ? (
+              <span className="text-2xl font-bold text-red-500 bg-white/80 px-6 py-2 rounded-full border-2 border-red-200 shadow-sm">
+                {lives} {lives === 1 ? "life" : "lives"} left!
+              </span>
+            ) : null}
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
@@ -197,8 +293,24 @@ export default function Game() {
           <ArrowLeft className="w-5 h-5 mr-1" />
           Exit
         </ComicButton>
-        <div className="bg-white px-6 py-2 rounded-2xl border-b-4 border-slate-200 font-black text-2xl text-slate-700 shadow-sm">
-          Score: <span className="text-primary">{score}</span>
+        <div className="flex items-center gap-4">
+          {mode !== "learn" && (
+            <div className="bg-white px-4 py-2 rounded-2xl border-b-4 border-slate-200 font-black text-xl flex gap-1 shadow-sm">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <span key={i} className={i < lives ? "text-red-500" : "text-slate-200"}>
+                  ❤️
+                </span>
+              ))}
+            </div>
+          )}
+          {mode === "hard" && gameState === "playing" && (
+            <div className={`bg-white px-6 py-2 rounded-2xl border-b-4 ${timeLeft <= 2 ? "border-red-500 text-red-500" : "border-slate-200 text-slate-700"} font-black text-2xl shadow-sm transition-colors`}>
+              ⏱️ {timeLeft}s
+            </div>
+          )}
+          <div className="bg-white px-6 py-2 rounded-2xl border-b-4 border-slate-200 font-black text-2xl text-slate-700 shadow-sm">
+            Score: <span className="text-primary">{score}</span>
+          </div>
         </div>
       </header>
 

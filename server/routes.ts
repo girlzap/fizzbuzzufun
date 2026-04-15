@@ -10,7 +10,8 @@ export async function registerRoutes(
 ): Promise<Server> {
   app.get(api.scores.list.path, async (req, res) => {
     try {
-      const topScores = await storage.getTopScores();
+      const mode = req.query.mode as string | undefined;
+      const topScores = await storage.getTopScores(mode);
       res.json(topScores);
     } catch (err) {
       res.status(500).json({ message: "Failed to fetch scores" });

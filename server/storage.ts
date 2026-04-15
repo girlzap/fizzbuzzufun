@@ -1,15 +1,19 @@
 import { db } from "./db";
 import { scores, type Score, type InsertScore } from "@shared/schema";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 export interface IStorage {
-  getTopScores(limit?: number): Promise<Score[]>;
+  getTopScores(mode?: string, limit?: number): Promise<Score[]>;
   createScore(score: InsertScore): Promise<Score>;
 }
 
 export class DatabaseStorage implements IStorage {
-  async getTopScores(limit: number = 10): Promise<Score[]> {
-    return await db.select().from(scores).orderBy(desc(scores.score)).limit(limit);
+  async getTopScores(mode?: string, limit: number = 10): Promise<Score[]> {
+    let query = db.select().from(scores);
+    if (mode) {
+      query = query.where(eq(scores.mode, mode)) as any;
+    }
+    return await query.orderBy(desc(scores.score)).limit(limit);
   }
 
   async createScore(score: InsertScore): Promise<Score> {

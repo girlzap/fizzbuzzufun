@@ -2,11 +2,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, type ScoreInput } from "@shared/routes";
 
 // GET /api/scores
-export function useScores() {
+export function useScores(mode?: string) {
   return useQuery({
-    queryKey: [api.scores.list.path],
+    queryKey: [api.scores.list.path, mode],
     queryFn: async () => {
-      const res = await fetch(api.scores.list.path);
+      const url = mode 
+        ? `${api.scores.list.path}?mode=${mode}`
+        : api.scores.list.path;
+      const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch leaderboard");
       return api.scores.list.responses[200].parse(await res.json());
     },

@@ -3,8 +3,8 @@ import { Trophy, Medal } from "lucide-react";
 import { motion } from "framer-motion";
 import { GameCard } from "./GameCard";
 
-export function Leaderboard() {
-  const { data: scores, isLoading } = useScores();
+export function Leaderboard({ mode }: { mode?: string }) {
+  const { data: scores, isLoading } = useScores(mode);
 
   if (isLoading) {
     return (
@@ -16,14 +16,21 @@ export function Leaderboard() {
     );
   }
 
-  // Sort scores descending and take top 5
+  // API already filters if mode is provided, but we ensure sorting
   const topScores = scores?.sort((a, b) => b.score - a.score).slice(0, 5) || [];
 
   return (
     <GameCard className="w-full max-w-md mx-auto bg-gradient-to-b from-white to-slate-50">
-      <div className="flex items-center justify-center gap-3 mb-6">
-        <Trophy className="w-8 h-8 text-accent animate-bounce" />
-        <h2 className="text-3xl font-black text-slate-800 tracking-tight">Top Players</h2>
+      <div className="flex flex-col items-center justify-center gap-1 mb-6">
+        <div className="flex items-center gap-3">
+          <Trophy className="w-8 h-8 text-accent animate-bounce" />
+          <h2 className="text-3xl font-black text-slate-800 tracking-tight">Top Players</h2>
+        </div>
+        {mode && (
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            {mode} Mode
+          </span>
+        )}
       </div>
 
       <div className="space-y-3">
